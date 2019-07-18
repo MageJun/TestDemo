@@ -14,6 +14,7 @@ import android.view.GestureDetector.*
 import android.widget.TextView
 import android.app.usage.UsageStatsManager.INTERVAL_DAILY
 import android.content.ActivityNotFoundException
+import android.graphics.PixelFormat
 import android.text.TextUtils
 import androidx.annotation.NonNull
 import org.greenrobot.eventbus.EventBus
@@ -93,6 +94,9 @@ class FloatWindowService:Service() {
         mLayoutParams!!.height = resources.getDimensionPixelSize(R.dimen.dp_200dp)
         mLayoutParams!!.x = 0
         mLayoutParams!!.y = 0
+//        mLayoutParams!!.dimAmount=0f
+        //Window设置图片格式，效果为背景透明（未设置图片，所以是透明的）
+        mLayoutParams!!.format= PixelFormat.RGBA_8888
 
 
 
