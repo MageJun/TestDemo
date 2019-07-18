@@ -1,9 +1,16 @@
 package com.example.testdemo
 
 import android.Manifest
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
+import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.IBinder
+import android.provider.Settings
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -25,12 +32,65 @@ class SecondActivity : AppCompatActivity() {
         button.setOnClickListener(object:View.OnClickListener{
             override fun onClick(p0: View?) {
                 niceToast("权限验证")
-                startActivity(Intent(this@SecondActivity,ThirdActivity::class.java))
+                startFloatWindowService()
+//                startActivity(Intent(this@SecondActivity,ThirdActivity::class.java))
 
 //                requestPermission()
 
             }
         })
+    }
+
+    private fun startFloatWindowService(){
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
+            if(!Settings.canDrawOverlays(this)){
+                startActivityForResult(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")),0)
+            }else{
+                bindService(Intent(this,FloatWindowService::class.java),serviceCOnnection, Context.BIND_AUTO_CREATE)
+            }
+        }else{
+            bindService(Intent(this,FloatWindowService::class.java),serviceCOnnection, Context.BIND_AUTO_CREATE)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
+            if (requestCode == 0) {
+                if (!Settings.canDrawOverlays(this)) {
+                    niceToast("授权失败")
+                }else{
+                    startFloatWindowService()
+                }
+            }
+        }
+    }
+    private var service:FloatWindowService?= null
+    private val serviceCOnnection = object:ServiceConnection{
+        override fun onServiceDisconnected(p0: ComponentName?) {
+
+        }
+
+        override fun onServiceConnected(p0: ComponentName?, p1: IBinder?) {
+            service = (p1 as FloatWindowService.InnerBinder).getService()
+
+            service!!.setListener(object:FloatWindowService.OnClickListener{
+                override fun onClick() {
+                    niceToast("点击事件")
+                    ActivityUtils.getInstance().moveVideoTaskToFront()
+//                    ActivityUtils.getInstance().startActivity(this@SecondActivity,null)
+                }
+
+            })
+
+            service!!.startFloatWindow()
+        }
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        service!!.stopFloatWindow()
+        unbindService(serviceCOnnection)
     }
 
     /**

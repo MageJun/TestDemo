@@ -28,6 +28,28 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    signingConfigs {
+        releaseConfig {
+            keyAlias 'keyv1'
+            keyPassword '123123'
+            storeFile file('keystore')
+            storePassword '123123'
+        }
+        debugConfig {
+            keyAlias 'keyv1'
+            keyPassword '123123'
+            storeFile file('keystore')
+            storePassword '123123'
+        }
+    }
+}
+
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 dependencies {
@@ -45,5 +67,11 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$support_version"
     implementation 'com.github.MageJun.LazzyLibrary:common_lib:0.13'
     implementation "com.apollographql.apollo:apollo-runtime:$apollo_version"
+
+    //集成ShareInstall库
+    compile(name: 'ShareInstall_1.2.0', ext:  'aar')
+
+    //集成EventBus
+    implementation 'org.greenrobot:eventbus:3.1.1'
 
 }
